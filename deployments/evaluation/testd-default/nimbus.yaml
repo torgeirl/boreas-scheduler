@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nimbus
+spec:
+  selector:
+    matchLabels:
+      app: nimbus
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: nimbus
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - nimbus
+                - asperitas
+            topologyKey: "kubernetes.io/hostname"
+      containers:
+      - name: nimbus-container
+        image: k8s.gcr.io/pause:2.0
+        resources:
+          requests:
+            cpu: "200m"
+            memory: "900M"

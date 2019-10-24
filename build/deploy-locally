@@ -1,0 +1,9 @@
+#!/bin/bash
+
+docker build -t boreas-scheduler:local .
+docker tag boreas-scheduler:local localhost:5000/boreas-scheduler:local
+docker push localhost:5000/boreas-scheduler:local
+docker image remove boreas-scheduler:local
+docker image remove localhost:5000/boreas-scheduler:local
+docker pull localhost:5000/boreas-scheduler:local
+kubectl create -f deployments/scheduler-local.yaml

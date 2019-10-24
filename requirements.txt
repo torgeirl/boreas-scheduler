@@ -1,0 +1,3 @@
+bidict
+kubernetes==8.0.*
+trio==0.11.*
