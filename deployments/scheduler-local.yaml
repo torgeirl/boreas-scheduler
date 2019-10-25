@@ -58,7 +58,7 @@ spec:
           privileged: false
         volumeMounts: []
       - name: zephyrus2
-        image: jacopomauro/zephyrus2
+        image: jacopomauro/zephyrus2:v2.0.2
         livenessProbe:
           httpGet:
             path: /health

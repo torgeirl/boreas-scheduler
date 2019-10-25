@@ -41,7 +41,7 @@ spec:
       serviceAccount: boreas-scheduler
       containers:
       - name: boreas-scheduler
-        image: torgeirl/boreas-scheduler:0.0.1
+        image: torgeirl/boreas-scheduler:0.1.0
         livenessProbe:
           httpGet:
             path: /health
@@ -58,7 +58,7 @@ spec:
           privileged: false
         volumeMounts: []
       - name: zephyrus2
-        image: jacopomauro/zephyrus2
+        image: jacopomauro/zephyrus2:v2.0.2
         livenessProbe:
           httpGet:
             path: /health
