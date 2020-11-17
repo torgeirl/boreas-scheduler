@@ -1,4 +1,4 @@
-# v0.2.0 (unreleased)
+# v0.2.0 (2020-11-17)
 
 **Updated dependencies**
 - `kubernetes`: bumped to version 12.0
