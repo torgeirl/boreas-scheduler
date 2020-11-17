@@ -6,7 +6,7 @@ spec:
   selector:
     matchLabels:
       app: simple
-  replicas: 84
+  replicas: 20
   template:
     metadata:
       labels:
@@ -18,5 +18,5 @@ spec:
         image: k8s.gcr.io/pause:2.0
         resources:
           requests:
-            cpu: "400m"
-            memory: "740M"
+            cpu: "180m"
+            memory: "750M"
