@@ -1,32 +1,31 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: redis-cache
+  name: nerthus
 spec:
   selector:
     matchLabels:
-      app: store
-  replicas: 3
+      app: nerthus
+  replicas: 12
   template:
     metadata:
       labels:
-        app: store
+        app: nerthus
     spec:
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
           - labelSelector:
               matchExpressions:
-              - key: app
+              - key: app 
                 operator: In
                 values:
-                - store
+                -  nerthus
             topologyKey: "kubernetes.io/hostname"
-      schedulerName: boreas-scheduler
       containers:
-      - name: redis-server
-        image: redis:5.0-alpine
+      - name: nerthus-container
+        image: k8s.gcr.io/pause
         resources:
           requests:
-            cpu: "250m"
-            memory: "128M"
+            cpu: "600m"
+            memory: "1200M"

@@ -1,10 +1,12 @@
 boreas-scheduler
 =============
 
+![Docker](https://github.com/torgeirl/boreas-scheduler/workflows/Docker/badge.svg)
+
 ## Overview
 
 ## Deploy Boreas scheduler
-You can deploy the Boreas scheduler on your master node by either using Docker Hub (recommended), or by building it yourself and deploying it to a local Docker registry. The later is mostly useful for development of the Boreas scheduler itself.
+You can deploy the Boreas scheduler on your master node by either pulling it from the Github Container Registry (recommended), or by building it yourself and deploying it to a local Docker registry. The later is mostly useful for development of the Boreas scheduler itself.
 
 You can see the scheduler's pod by listing pods in the system namespace:
   - `$ kubectl get pods --namespace=kube-system`
@@ -13,31 +15,31 @@ Pod description and logs are also available:
   - `$ kubectl describe pod boreas-scheduler --namespace=kube-system`
   - `$ kubectl logs boreas-scheduler-<pod-identifier> boreas-scheduler --namespace=kube-system`
 
-### Deploy from Docker Hub
+### Deploy from the Github Container Registry
   - `$ kubectl create -f deployments/scheduler.yaml`
 
 ### Deploy from local Docker registry
-  - `$ sudo bash build/deploy-locally`
+  - `$ bash build/deploy-locally`
 
 which deploys the scheduler locally in four steps:
 
 (1) Build a Docker image:
-  - `$ sudo docker build -t boreas-scheduler:local .`
+  - `$ docker build -t boreas-scheduler:local .`
 
 (2) Tag the image and push it to your [local registry](https://docs.docker.com/registry/deploying/):
-  - `$ sudo docker tag boreas-scheduler:local localhost:5000/boreas-scheduler:local`
-  - `$ sudo docker push localhost:5000/boreas-scheduler:local`
+  - `$ docker tag boreas-scheduler:local localhost:5000/boreas-scheduler:local`
+  - `$ docker push localhost:5000/boreas-scheduler:local`
 
 (3) Remove the locally-cached images, and then pull the image from your registry:
-  - `$ sudo docker image remove boreas-scheduler:local`
-  - `$ sudo docker image remove localhost:5000/boreas-scheduler:local`
-  - `$ sudo docker pull localhost:5000/boreas-scheduler:local`
+  - `$ docker image remove boreas-scheduler:local`
+  - `$ docker image remove localhost:5000/boreas-scheduler:local`
+  - `$ docker pull localhost:5000/boreas-scheduler:local`
 
 (4) Deploy the sheduler to Kubernetes:
   - `$ kubectl create -f deployments/scheduler-local.yaml`
 
 ## Remove Boreas scheduler
-  - `$ bash build/remove`
+  - `$ bash build/remove`
 
 which removes the scheduler by running the following:
   - `$ kubectl delete deployment --namespace=kube-system boreas-scheduler`

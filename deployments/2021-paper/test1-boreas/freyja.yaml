@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: freyja
+spec:
+  selector:
+    matchLabels:
+      app: freyja
+  replicas: 12
+  template:
+    metadata:
+      labels:
+        app: freyja
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app 
+                operator: In
+                values:
+                -  freyja
+            topologyKey: "kubernetes.io/hostname"
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - nerthus
+            topologyKey: "kubernetes.io/hostname"
+      schedulerName: boreas-scheduler
+      containers:
+      - name: freyja-container
+        image: k8s.gcr.io/pause
+        resources:
+          requests:
+            cpu: "400m"
+            memory: "800M"
