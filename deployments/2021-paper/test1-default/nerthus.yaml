@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nerthus
+spec:
+  selector:
+    matchLabels:
+      app: nerthus
+  replicas: 12
+  template:
+    metadata:
+      labels:
+        app: nerthus
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app 
+                operator: In
+                values:
+                -  nerthus
+            topologyKey: "kubernetes.io/hostname"
+      containers:
+      - name: nerthus-container
+        image: k8s.gcr.io/pause
+        resources:
+          requests:
+            cpu: "600m"
+            memory: "1200M"

@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: simple
+spec:
+  selector:
+    matchLabels:
+      app: simple
+  replicas: 30
+  template:
+    metadata:
+      labels:
+        app: simple
+    spec:
+      schedulerName: boreas-scheduler
+      containers:
+      - name: simple-container
+        image: k8s.gcr.io/pause:2.0
+        resources:
+          requests:
+            cpu: "180m"
+            memory: "750M"

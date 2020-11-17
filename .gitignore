@@ -1,0 +1,8 @@
+/.cache
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# Swap files (VIM etc)
+*.py.swp

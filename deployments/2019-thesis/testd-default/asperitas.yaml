@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: asperitas
+spec:
+  selector:
+    matchLabels:
+      app: asperitas
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: asperitas
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app 
+                operator: In
+                values:
+                -  asperitas
+            topologyKey: "kubernetes.io/hostname"
+      containers:
+      - name: asperitas-container
+        image: k8s.gcr.io/pause:2.0
+        resources:
+          requests:
+            cpu: "400m"
+            memory: "1800M"

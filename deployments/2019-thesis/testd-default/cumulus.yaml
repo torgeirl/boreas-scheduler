@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cumulus
+spec:
+  selector:
+    matchLabels:
+      app: cumulus
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: cumulus
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - cumulus
+            topologyKey: "kubernetes.io/hostname"
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - asperitas
+            topologyKey: "kubernetes.io/hostname"
+      containers:
+      - name: cumulus-container
+        image: k8s.gcr.io/pause:2.0
+        resources:
+          requests:
+            cpu: "200m"
+            memory: "900M"
