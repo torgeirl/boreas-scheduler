@@ -21,6 +21,9 @@ class HealthServer(Thread):
                 self.end_headers()
                 self.wfile.write(b'OK\n')
 
+        def log_message(self, format, *args):
+            return
+
     def run(self):
         server = HTTPServer(('', self.port), self.HealthRequestHandler)
         print('Starting HTTP server on port {}'.format(self.port))

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import asyncio
 from collections import defaultdict
 from functools import partial
 from json import dumps as json_dumps, loads as json_loads
@@ -12,7 +13,6 @@ from unittest.mock import Mock
 
 from bidict import bidict
 from kubernetes import client, config, watch
-from trio import run as trio_run, run_sync_in_worker_thread
 
 from health_server import HealthServer
 
@@ -238,18 +238,14 @@ class Scheduler():
         target = client.V1ObjectReference(kind = 'Node', api_version = 'v1', name = node)
         meta = client.V1ObjectMeta(name = name)
         body = client.V1Binding(target = target, metadata = meta)
-        try:
-            self.api.create_namespaced_binding(namespace=namespace, body=body)
-        except ValueError as e:
-            #print('Warning: ValueError when calling CoreV1Api().create_namespaced_binding(): {}'.format(e))
-            pass
+        self.api.create_namespaced_binding(namespace=namespace, body=body, _preload_content=False)
 
 
     def wait_for_optimizer(self):
         '''Wait for optimizer's readiness probe to return HTTP 200.'''
         response = Mock(spec=Response)
         response.status_code = 503
-        while not response.status_code is 200:
+        while response.status_code != 200:
             try:
                 response = requests_get('http://127.0.0.1:{}/health'.format(self.optimizer.port))
             except:
@@ -321,9 +317,10 @@ class Scheduler():
     async def start(self):
         '''Receive and process scheduling events once the optimizer is ready.'''
         self.wait_for_optimizer()
+        print('Listning for scheduling events to process.')
         previous = None
         while True:
-            batch = await run_sync_in_worker_thread(partial(self.get_event_batch, previous, batch_limit=30, time_limit=10))
+            batch = await asyncio.to_thread(partial(self.get_event_batch, previous, batch_limit=99, time_limit=30))
             if batch:
                 start_time = perf_counter()
                 self.schedule_events(batch)
@@ -336,4 +333,4 @@ class Scheduler():
 if __name__ == '__main__':
     HealthServer(port=10251).start()
     scheduler = Scheduler('boreas-scheduler', reserved_kublets=False, optimizer_port=9001)
-    trio_run(scheduler.start)
+    asyncio.run(scheduler.start())

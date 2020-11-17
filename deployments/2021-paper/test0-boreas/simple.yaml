@@ -6,7 +6,7 @@ spec:
   selector:
     matchLabels:
       app: simple
-  replicas: 20
+  replicas: 190
   template:
     metadata:
       labels:
@@ -15,8 +15,8 @@ spec:
       schedulerName: boreas-scheduler
       containers:
       - name: simple-container
-        image: k8s.gcr.io/pause:2.0
+        image: k8s.gcr.io/pause
         resources:
           requests:
-            cpu: "180m"
-            memory: "750M"
+            cpu: "190m"
+            memory: "380M"

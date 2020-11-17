@@ -1,4 +1,4 @@
-FROM python:3.7-alpine as base
+FROM python:3.9-slim as base
 FROM base as builder
 
 RUN mkdir /install
@@ -6,8 +6,7 @@ WORKDIR /install
 
 COPY requirements.txt /requirements.txt
 
-RUN apk add --no-cache curl python3 pkgconfig python3-dev openssl-dev libffi-dev musl-dev make gcc
-RUN pip install --install-option="--prefix=/install" -r /requirements.txt
+RUN pip install --prefix=/install --no-warn-script-location -r /requirements.txt
 
 FROM base
 
