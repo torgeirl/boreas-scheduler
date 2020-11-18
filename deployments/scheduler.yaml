@@ -41,7 +41,7 @@ spec:
       serviceAccount: boreas-scheduler
       containers:
       - name: boreas-scheduler
-        image: ghcr.io/torgeirl/boreas-scheduler:latest
+        image: ghcr.io/torgeirl/boreas-scheduler:0.2.0
         livenessProbe:
           httpGet:
             path: /health
