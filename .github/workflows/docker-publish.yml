@@ -6,7 +6,7 @@ on:
     branches:
       - master
 
-    # Publish `v1.2.3` tags as releases.
+    # Publish `v1.2.3` tags as releases and `latest`.
     tags:
       - v*
 
@@ -62,14 +62,17 @@ jobs:
           # Strip git ref prefix from version
           VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
 
-          # Strip "v" prefix from tag name
-          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          # Strip "v" prefix from tag name, and also tag it as `latest`
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION="$(echo $VERSION | sed -e 's/^v//') latest"
 
-          # master branch container is tagged as `develop`
+          # Tag master branch as `develop`
           [ "$VERSION" == "master" ] && VERSION=develop
 
           echo IMAGE_ID=$IMAGE_ID
           echo VERSION=$VERSION
 
-          docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
+          for VALUE in $VERSION
+          do
+              docker tag $IMAGE_NAME $IMAGE_ID:$VALUE
+          done
           docker push $IMAGE_ID:$VERSION
