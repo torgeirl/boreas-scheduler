@@ -2,6 +2,7 @@
 
 import asyncio
 from collections import defaultdict
+import configparser
 from functools import partial
 from json import dumps as json_dumps, loads as json_loads
 from re import match as re_match
@@ -18,7 +19,7 @@ from health_server import HealthServer
 
 
 class Scheduler():
-    def __init__(self, name, reserved_kublets, optimizer_port):
+    def __init__(self, name, reserved_kublet_cpu, reserved_kublet_ram, optimizer_port):
         '''Load kubernetes config and connect to the API server.'''
         try:
             config.load_incluster_config()
@@ -26,7 +27,8 @@ class Scheduler():
             exit('Unable to load cluster config: {}'.format(e))
         self.api = client.CoreV1Api()
         self.name = name
-        self.reserved_kublets = reserved_kublets
+        self.reserved_kublet_cpu = reserved_kublet_cpu
+        self.reserved_kublet_ram = reserved_kublet_ram
         self.optimizer = self.Optimizer(optimizer_port)
         self.nicknames = bidict() # we naively assume names don't change during runtime; TODO don't
 
@@ -121,11 +123,8 @@ class Scheduler():
         for n in self.api.list_node().items:
             for status in n.status.conditions:
                 if status.status == 'True' and status.type == 'Ready' and 'node-role.kubernetes.io/master' not in n.metadata.labels:
-                    cpu = self.cpu_convertion(n.status.allocatable['cpu']) - nodes_usage[n.metadata.name]['cpu']
-                    ram = self.ram_convertion(n.status.allocatable['memory']) - nodes_usage[n.metadata.name]['memory']
-                    if not self.reserved_kublets:
-                        cpu -= 100
-                        ram -= 100
+                    cpu = self.cpu_convertion(n.status.allocatable['cpu']) - nodes_usage[n.metadata.name]['cpu'] - self.reserved_kublet_cpu
+                    ram = self.ram_convertion(n.status.allocatable['memory']) - nodes_usage[n.metadata.name]['memory'] - self.reserved_kublet_ram
                     ready_nodes[self.set_nickname(n.metadata.name)] = {'num': 1, 'resources': {'RAM': ram, 'cpu': cpu}} #TODO add "cost"
         return ready_nodes
 
@@ -314,13 +313,13 @@ class Scheduler():
         return batch
 
 
-    async def start(self):
+    async def start(self, batch_limit, time_limit):
         '''Receive and process scheduling events once the optimizer is ready.'''
         self.wait_for_optimizer()
         print('Listning for scheduling events to process.')
         previous = None
         while True:
-            batch = await asyncio.to_thread(partial(self.get_event_batch, previous, batch_limit=99, time_limit=30))
+            batch = await asyncio.to_thread(partial(self.get_event_batch, previous, batch_limit, time_limit))
             if batch:
                 start_time = perf_counter()
                 self.schedule_events(batch)
@@ -331,6 +330,12 @@ class Scheduler():
 
 
 if __name__ == '__main__':
-    HealthServer(port=10251).start()
-    scheduler = Scheduler('boreas-scheduler', reserved_kublets=False, optimizer_port=9001)
-    asyncio.run(scheduler.start())
+    settings = configparser.ConfigParser()
+    settings.read('settings.ini')
+    HealthServer(port=settings.getint('Boreas', 'HealthPort')).start()
+    scheduler = Scheduler(settings['Boreas']['SchedulerName'],
+                          reserved_kublet_cpu=settings.getint('Boreas', 'ReservedKubletCPU'),
+                          reserved_kublet_ram=settings.getint('Boreas', 'ReservedKubletRAM'),
+                          optimizer_port=settings.getint('Boreas', 'OptimizerPort'))
+    asyncio.run(scheduler.start(batch_limit=settings.getint('Boreas', 'BatchSize'),
+                                time_limit=settings.getint('Boreas', 'BatchTime')))

@@ -1,3 +1,8 @@
+# v0.3.0 (unreleased)
+
+**Improvements**
+- Scheduler configurations such as batch size are now read from a settings file.
+
 # v0.2.0 (2020-11-17)
 
 **Updated dependencies**
