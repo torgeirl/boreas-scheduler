@@ -1,2 +1,3 @@
 bidict # MPL-2.0
 kubernetes==12.0.* # Apache-2.0
+pytz # MIT

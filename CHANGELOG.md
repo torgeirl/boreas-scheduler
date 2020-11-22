@@ -1,10 +1,9 @@
 # v0.3.0 (unreleased)
-
 **Improvements**
-- Scheduler configurations such as batch size are now read from a settings file.
+- Scheduler configurations such as batch size are now read from a settings file
+- Added optional event warning message when optimizer is unable to find placement (#11)
 
 # v0.2.0 (2020-11-17)
-
 **Updated dependencies**
 - `kubernetes`: bumped to version 12.0
 - `trio`: no longer needed with the [introduction of asyncio.to_thread in Python 3.9](https://docs.python.org/3.9/library/asyncio-task.html#running-in-threads)
