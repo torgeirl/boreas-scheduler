@@ -1,4 +1,7 @@
 # v0.3.0 (unreleased)
+**Updated dependencies**
+- added `pytz`
+
 **Improvements**
 - Scheduler configurations such as batch size are now read from a settings file
 - Added optional event warning message when optimizer is unable to find placement (#11)

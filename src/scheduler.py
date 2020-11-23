@@ -243,17 +243,26 @@ class Scheduler():
         self.api.create_namespaced_binding(namespace=namespace, body=body, _preload_content=False)
 
 
-    def warn_no_solution_found(self, name, namespace='default'):
+    def warn_no_solution_found(self, event, namespace='default'):
         '''Add event message to pod description when optimizer is unable to find solution.'''
-        meta = client.V1ObjectMeta(name = name)
-        reference = client.V1ObjectReference(name = name, kind = 'Pod')
-        body = client.V1Event(metadata = meta,
-                              involved_object = reference,
-                              last_timestamp = datetime.now(pytz.utc),
-                              type = 'Warning',
+        object = client.V1ObjectReference(api_version = 'v1',
+                                          kind = 'Pod',
+                                          name = event['object'].metadata.name,
+                                          namespace = namespace,
+                                          resource_version = event['object'].metadata.resource_version,
+                                          uid = event['object'].metadata.uid)
+        meta = client.V1ObjectMeta(name = event['object'].metadata.name)
+        source = client.V1EventSource(component = self.name)
+        timestamp = datetime.now(pytz.utc)
+        body = client.V1Event(count = 1,
+                              first_timestamp = timestamp,
+                              involved_object = object,
+                              last_timestamp = timestamp,
+                              message = "Optimizer was unable to find solution for batch containing pod.",
+                              metadata = meta,
                               reason = 'FailedScheduling',
-                              reporting_component = self.name,
-                              message = "Optimizer was unable to find solution for batch containing pod.")
+                              source = source,
+                              type = 'Warning')
         self.api.create_namespaced_event(namespace=namespace, body=body, _preload_content=False)
 
 
@@ -316,7 +325,7 @@ class Scheduler():
             print('Warning: no configuration returned from optimizer: {}'.format(result['error']))
             if self.no_solution_found_warning:
                 for event in regular_events:
-                    self.warn_no_solution_found(event['object'].metadata.name)
+                    self.warn_no_solution_found(event)
 
 
     def get_event_batch(self, previous, batch_limit, time_limit):
