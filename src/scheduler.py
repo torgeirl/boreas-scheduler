@@ -361,11 +361,11 @@ class Scheduler():
 if __name__ == '__main__':
     settings = configparser.ConfigParser()
     settings.read('settings.ini')
-    HealthServer(port=settings.getint('Boreas', 'HealthPort')).start()
-    scheduler = Scheduler(settings['Boreas']['SchedulerName'],
-                          reserved_kublet_cpu=settings.getint('Boreas', 'ReservedKubletCPU'),
-                          reserved_kublet_ram=settings.getint('Boreas', 'ReservedKubletRAM'),
-                          no_solution_found_warning=settings.getboolean('Boreas', 'WarnNoSolutionFound'),
-                          optimizer_port=settings.getint('Boreas', 'OptimizerPort'))
-    asyncio.run(scheduler.start(batch_limit=settings.getint('Boreas', 'BatchSize'),
-                                time_limit=settings.getint('Boreas', 'BatchTime')))
+    HealthServer(port=settings.getint('scheduler', 'HealthPort')).start()
+    scheduler = Scheduler(settings['scheduler']['SchedulerName'],
+                          reserved_kublet_cpu=settings.getint('scheduler', 'ReservedKubletCPU'),
+                          reserved_kublet_ram=settings.getint('scheduler', 'ReservedKubletRAM'),
+                          no_solution_found_warning=settings.getboolean('scheduler', 'WarnNoSolutionFound'),
+                          optimizer_port=settings.getint('optimizer', 'Port'))
+    asyncio.run(scheduler.start(batch_limit=settings.getint('scheduler', 'BatchSize'),
+                                time_limit=settings.getint('scheduler', 'BatchTime')))
