@@ -24,6 +24,7 @@ spec:
   selector:
     matchLabels:
       app: frontend
+  replicas: 6
   template:
     metadata:
       labels:
@@ -31,6 +32,16 @@ spec:
       annotations:
         sidecar.istio.io/rewriteAppHTTPProbers: "true"
     spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                -  frontend
+            topologyKey: "kubernetes.io/hostname"
       containers:
         - name: server
           image: gcr.io/google-samples/microservices-demo/frontend:v0.1.5
