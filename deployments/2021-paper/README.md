@@ -17,9 +17,9 @@ Flannel requests 100m CPU (5%) and 50Mi RAM (1%) as part of its deployment confi
 Boreas has options to reserve CPU and RAM for the system services. To ensure comparable test results vs Kubernetes' default scheduler both these values needs to be set to `0` in `src/settings.ini`.
 
 ## Tests
-  - Test0: deployment with 72 pods that request 100% CPU and 99% RAM of the cluster's total capacity, to verify that both the default scheduler and Boreas are capible to fill the cluster completely.
+  - Test0: deployment with 72 replicas that request 100% CPU and 99% RAM of the cluster's total capacity, to verify that both the default scheduler and Boreas are capible to fill the cluster completely.
 
-  - Test1: 
+  - Test1: deployment based on Google's [«Hipster Shop: Cloud-Native Microservices Demo Application»](https://github.com/GoogleCloudPlatform/microservices-demo)(Apache-2.0 license), deploying a webstore to the cluster.
 
 ## Running the evaluation tests
 Run the tests as regular Kubernetes deployments:
