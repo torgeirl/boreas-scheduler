@@ -25,7 +25,6 @@ spec:
       labels:
         app: shippingservice
     spec:
-      schedulerName: boreas-scheduler
       containers:
       - name: server
         image: gcr.io/google-samples/microservices-demo/shippingservice:v0.1.5

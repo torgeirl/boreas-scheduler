@@ -27,7 +27,6 @@ spec:
       annotations:
         sidecar.istio.io/rewriteAppHTTPProbers: "true"
     spec:
-      schedulerName: boreas-scheduler
       containers:
         - name: server
           image: gcr.io/google-samples/microservices-demo/frontend:v0.1.5

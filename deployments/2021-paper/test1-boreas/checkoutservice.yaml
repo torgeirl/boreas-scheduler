@@ -25,6 +25,7 @@ spec:
       labels:
         app: checkoutservice
     spec:
+      schedulerName: boreas-scheduler
       containers:
         - name: server
           image: gcr.io/google-samples/microservices-demo/checkoutservice:v0.1.5

@@ -26,6 +26,7 @@ spec:
         app: adservice
     spec:
       terminationGracePeriodSeconds: 5
+      schedulerName: boreas-scheduler
       containers:
       - name: server
         image: gcr.io/google-samples/microservices-demo/adservice:v0.1.5
