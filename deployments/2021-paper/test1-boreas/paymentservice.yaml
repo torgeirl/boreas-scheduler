@@ -25,11 +25,12 @@ spec:
       labels:
         app: paymentservice
     spec:
+      serviceAccountName: default
       terminationGracePeriodSeconds: 5
       schedulerName: boreas-scheduler
       containers:
       - name: server
-        image: gcr.io/google-samples/microservices-demo/paymentservice:v0.1.5
+        image: gcr.io/google-samples/microservices-demo/paymentservice:v0.2.1
         ports:
         - containerPort: 50051
         env:

@@ -29,7 +29,7 @@ spec:
       schedulerName: boreas-scheduler
       containers:
       - name: server
-        image: gcr.io/google-samples/microservices-demo/recommendationservice:v0.1.5
+        image: gcr.io/google-samples/microservices-demo/recommendationservice:v0.2.1
         ports:
         - containerPort: 8080
         readinessProbe:

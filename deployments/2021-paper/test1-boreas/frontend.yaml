@@ -27,10 +27,11 @@ spec:
       annotations:
         sidecar.istio.io/rewriteAppHTTPProbers: "true"
     spec:
+      serviceAccountName: default
       schedulerName: boreas-scheduler
       containers:
         - name: server
-          image: gcr.io/google-samples/microservices-demo/frontend:v0.1.5
+          image: gcr.io/google-samples/microservices-demo/frontend:v0.2.1
           ports:
           - containerPort: 8080
           readinessProbe:
@@ -66,6 +67,8 @@ spec:
             value: "checkoutservice:5050"
           - name: AD_SERVICE_ADDR
             value: "adservice:9555"
+          - name: ENV_PLATFORM
+            value: "gcp"
           # - name: DISABLE_TRACING
           #   value: "1"
           # - name: DISABLE_PROFILER

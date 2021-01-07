@@ -25,10 +25,11 @@ spec:
       labels:
         app: emailservice
     spec:
+      serviceAccountName: default
       terminationGracePeriodSeconds: 5
       containers:
       - name: server
-        image: gcr.io/google-samples/microservices-demo/emailservice:v0.1.5
+        image: gcr.io/google-samples/microservices-demo/emailservice:v0.2.1
         ports:
         - containerPort: 8080
         env:
