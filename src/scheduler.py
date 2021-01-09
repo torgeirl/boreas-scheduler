@@ -21,7 +21,7 @@ from health_server import HealthServer
 
 
 class Scheduler():
-    def __init__(self, name, reserved_kublet_cpu, reserved_kublet_ram, no_solution_found_warning, optimizer_port):
+    def __init__(self, name, reserved_kublet_cpu, reserved_kublet_ram, no_solution_found_warning, optimizer_port, optimizer_options):
         '''Load kubernetes config and connect to the API server.'''
         try:
             config.load_incluster_config()
@@ -32,13 +32,14 @@ class Scheduler():
         self.reserved_kublet_cpu = reserved_kublet_cpu
         self.reserved_kublet_ram = reserved_kublet_ram
         self.no_solution_found_warning = no_solution_found_warning
-        self.optimizer = self.Optimizer(optimizer_port)
+        self.optimizer = self.Optimizer(optimizer_port, optimizer_options)
         self.nicknames = bidict() # we naively assume names don't change during runtime; TODO don't
 
 
     class Optimizer():
-        def __init__(self, port):
+        def __init__(self, port, options):
             self.port = port
+            self.options = [x.strip() for x in options.split(',')] if options else None
 
 
         def optimize(self, spec):
@@ -284,6 +285,8 @@ class Scheduler():
         spec = {}
         spec['locations'] = self.nodes_available()
         spec['components'] = {}
+        if self.optimizer.options:
+            spec['options'] = self.optimizer.options
         spec['specification'] = ''
         regular_events, replica_sets, labels = self.get_labels_and_sets(events)
         for event in regular_events:
@@ -366,6 +369,7 @@ if __name__ == '__main__':
                           reserved_kublet_cpu=settings.getint('scheduler', 'ReservedKubletCPU'),
                           reserved_kublet_ram=settings.getint('scheduler', 'ReservedKubletRAM'),
                           no_solution_found_warning=settings.getboolean('scheduler', 'WarnNoSolutionFound'),
-                          optimizer_port=settings.getint('optimizer', 'Port'))
+                          optimizer_port=settings.getint('optimizer', 'Port'),
+                          optimizer_options=settings.get('optimizer', 'Options', fallback=None))
     asyncio.run(scheduler.start(batch_limit=settings.getint('scheduler', 'BatchSize'),
                                 time_limit=settings.getint('scheduler', 'BatchTime')))
