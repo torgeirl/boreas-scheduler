@@ -5,6 +5,7 @@
 **Improvements**
 - Scheduler configurations such as batch size are now read from a settings file
 - Added optional event warning message when optimizer is unable to find placement (#11)
+- Added optional setting that enables passing options to the optimizer
 
 # v0.2.0 (2020-11-17)
 **Updated dependencies**
