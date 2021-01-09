@@ -22,6 +22,8 @@ Boreas has options to reserve CPU and RAM for the system services. To ensure com
   - Test1: deployment based on Google's [«Hipster Shop: Cloud-Native Microservices Demo Application»](https://github.com/GoogleCloudPlatform/microservices-demo)(Apache-2.0 license), deploying a webstore to the cluster.
 
 ## Running the evaluation tests
+Add `Options = --solver, lex-or-tools` under `[optimizer]` in `src/settings.ini`.
+
 Run the tests as regular Kubernetes deployments:
   - `$ kubectl create -f deployments/2021-paper/test1-boreas`
 
