@@ -6,7 +6,7 @@ spec:
   selector:
     matchLabels:
       app: simple
-  replicas: 72
+  replicas: 40
   template:
     metadata:
       labels:
@@ -18,4 +18,4 @@ spec:
         resources:
           requests:
             cpu: "475m"
-            memory: "990M"
+            memory: "2040M"
