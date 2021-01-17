@@ -28,7 +28,7 @@ spec:
       schedulerName: boreas-scheduler
       containers:
       - name: server
-        image: gcr.io/google-samples/microservices-demo/shippingservice:v0.1.5
+        image: gcr.io/google-samples/microservices-demo/shippingservice:v0.2.1
         ports:
         - containerPort: 50051
         env:

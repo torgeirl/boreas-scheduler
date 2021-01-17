@@ -20,6 +20,7 @@ spec:
   selector:
     matchLabels:
       app: redis-cart
+  replicas: 2
   template:
     metadata:
       labels:

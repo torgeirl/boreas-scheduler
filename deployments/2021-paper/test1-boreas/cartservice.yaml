@@ -20,6 +20,7 @@ spec:
   selector:
     matchLabels:
       app: cartservice
+  replicas: 2
   template:
     metadata:
       labels:
