@@ -126,7 +126,7 @@ class Scheduler():
         ready_nodes = {}
         for n in self.api.list_node().items:
             for status in n.status.conditions:
-                if status.status == 'True' and status.type == 'Ready' and 'node-role.kubernetes.io/master' not in n.metadata.labels:
+                if status.status == 'True' and status.type == 'Ready' and not n.spec.unschedulable and 'node-role.kubernetes.io/master' not in n.metadata.labels:
                     cpu = self.cpu_convertion(n.status.allocatable['cpu']) - nodes_usage[n.metadata.name]['cpu'] - self.reserved_kublet_cpu
                     ram = self.ram_convertion(n.status.allocatable['memory']) - nodes_usage[n.metadata.name]['memory'] - self.reserved_kublet_ram
                     ready_nodes[self.set_nickname(n.metadata.name)] = {'num': 1, 'resources': {'RAM': ram, 'cpu': cpu}} #TODO add "cost"
