@@ -20,7 +20,7 @@ spec:
   selector:
     matchLabels:
       app: frontend
-  replicas: 3
+  replicas: 2
   template:
     metadata:
       labels:

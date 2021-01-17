@@ -2,9 +2,9 @@
 The deployments in this directory were designed for a cluster of 10 workers running [upstream Kubernetes v1.19](https://github.com/kubernetes/kubernetes). An [accompanying repository with Ansible playbooks](https://github.com/torgeirl/kubernetes-playbooks) can be used to build a suitable test cluster.
 
 ### Allocatable and reserved resources
-A worker node with 2 CPUs and 8 GB RAM is listed will the following resources allocatable for pods:
-  - 1.9 CPU (95%)
-  - 8244 MB (98%)
+A worker node with 1 CPU and 4 GB RAM has the following resources allocatable for pods:
+  - 900 millicores CPU (90%)
+  - 3972 megabyte RAM (97.5%)
 
 These pods will share resources with the Kubernetes system services running on the worker node:
   - Kubelet agent
@@ -12,17 +12,17 @@ These pods will share resources with the Kubernetes system services running on t
   - Docker (container runtime)
   - Flannel (container subnet)
 
-Flannel requests 100m CPU (5%) and 50Mi RAM (>1%) as part of its deployment configuration. Reserving compute resources for the other system services has to be [set during cluster initialization](https://v1-19.docs.kubernetes.io/docs/tasks/administer-cluster/reserve-compute-resources/). 
+Flannel requests 100m CPU (10%) and 50Mi RAM (1.3%) as part of its deployment configuration. Reserving compute resources for the other system services has to be [set during cluster initialization](https://v1-19.docs.kubernetes.io/docs/tasks/administer-cluster/reserve-compute-resources/). 
 
-Boreas has options to reserve CPU and RAM for the system services. To ensure comparable test results vs Kubernetes' default scheduler both these values needs to be set to `0` in `src/settings.ini`.
+Boreas has options to reserve CPU and RAM for all the system services, but to ensure comparable test results vs Kubernetes' default scheduler both these values needs to be set to only match the requests from Flannel in `src/settings.ini`:
+  - `ReservedKubletCPU = 100`
+  - `ReservedKubletRAM = 50`
 
 ## Tests
-  - Test0: deployment with 40 replicas that request 100% CPU and 99% RAM of the cluster's total capacity, to verify that both the default scheduler and Boreas are capible to fill the cluster completely.
-
-  - Test1: deployment based on Google's [«Online Boutique: Cloud-Native Microservices Demo Application»](https://github.com/GoogleCloudPlatform/microservices-demo)(Apache-2.0 license), deploying a webstore to the cluster.
+  - Test1: deployment based on Google's [«Online Boutique: Cloud-Native Microservices Demo Application»](https://github.com/GoogleCloudPlatform/microservices-demo)(Apache-2.0 license), deploying a webstore to two worker nodes with just enough resources (cordon excess worker nodes before running this test).
 
 ## Running the evaluation tests
-Build a test cluster with 10 workers configured with 2 CPUs and 8 GB RAM each.
+Build a test cluster with 10 workers configured with 1 CPUs and 4 GB RAM each.
 
 Configure Boreas to use Zephyrus with the ortool solver:
   - Add `Options = --solver, lex-or-tools` under `[optimizer]` in `src/settings.ini`.
