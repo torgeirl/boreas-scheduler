@@ -21,6 +21,8 @@ Boreas has options to reserve CPU and RAM for all the system services, but to en
 ## Tests
   - Test1: deployment based on Google's [«Online Boutique: Cloud-Native Microservices Demo Application»](https://github.com/GoogleCloudPlatform/microservices-demo)(Apache-2.0 license), deploying a webstore to two worker nodes with just enough resources (cordon excess worker nodes before running this test).
 
+  - Test2: deployment with affinity/anti-affinity constraints, deploying a four-tier service to four worker notes with just enough resources (cordon excess worker nodes before running this test).
+
 ## Running the evaluation tests
 Build a test cluster with 10 workers configured with 1 CPUs and 4 GB RAM each.
 

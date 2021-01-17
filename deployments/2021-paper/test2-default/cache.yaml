@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cache
+spec:
+  selector:
+    matchLabels:
+      app: cache
+  replicas: 4
+  template:
+    metadata:
+      labels:
+        app: cache
+    spec:
+      containers:
+      - name: cache-container
+        image: k8s.gcr.io/pause:2.0
+        resources:
+          requests:
+            cpu: "200m"
+            memory: "400M"

@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: simple
+  name: proxy
 spec:
   selector:
     matchLabels:
-      app: simple
-  replicas: 40
+      app: proxy
+  replicas: 3
   template:
     metadata:
       labels:
-        app: simple
+        app: proxy
     spec:
       schedulerName: boreas-scheduler
       containers:
-      - name: simple-container
-        image: k8s.gcr.io/pause
+      - name: proxy-container
+        image: k8s.gcr.io/pause:2.0
         resources:
           requests:
-            cpu: "475m"
-            memory: "2040M"
+            cpu: "300m"
+            memory: "600M"

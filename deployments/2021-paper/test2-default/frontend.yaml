@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+spec:
+  selector:
+    matchLabels:
+      app: frontend
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                -  frontend
+            topologyKey: "kubernetes.io/hostname"
+      containers:
+      - name: backend-container
+        image: k8s.gcr.io/pause:2.0
+        resources:
+          requests:
+            cpu: "300m"
+            memory: "400M"
