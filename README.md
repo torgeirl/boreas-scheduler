@@ -59,7 +59,7 @@ Details on the available options can be found in [Zephyrus2's documentation](htt
   - using [the Gecode solver](https://github.com/Gecode/gecode): `--solver, gecode`
   - using the Z3 SMT solver: `--solver, smt`
 
-For instance, the following will instruct Zephyrus2 to use the OR-Tools as its solver:
+For instance, the following will instruct Zephyrus2 to use OR-Tools as its solver:
   - Add `Options = --solver, lex-or-tools`
 
 ## Credits
