@@ -27,5 +27,5 @@ Build a test cluster with worker nodes configured with 1 CPUs and 4 GB RAM each.
 Run the tests as regular Kubernetes deployments, ie:
   - `$ kubectl create -f deployments/2021-paper/test1-boreas`
 
-List all pods sorted by worker node (helpfull when evaluation service placement):
+List all pods sorted by worker node (helpfull when evaluation pod placement):
   - `$ kubectl get pod -o=custom-columns=NAME:.metadata.name,STATUS:.status.phase,NODE:.spec.nodeName --sort-by="{.spec.nodeName}"` 
