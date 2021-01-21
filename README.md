@@ -50,6 +50,18 @@ which removes the scheduler by running the following:
   - `$ kubectl delete clusterrolebinding --namespace=kube-system boreas-scheduler-as-kube-scheduler`
   - `$ kubectl delete serviceaccount --namespace=kube-system boreas-scheduler`
 
+## Advanced optimizer settings
+Boreas can be configured to include optimizing options with the optimizing requests sent to Zephyrus2 through an optional `Options` setting. The setting must be set under `[optimizer]` in `src/settings.ini` before deploying Boreas from a local Docker registry.
+
+Details on the available options can be found in [Zephyrus2's documentation](https://bitbucket.org/jacopomauro/zephyrus2), but options include:
+  - disabling Zephyrus2's symmetry breaking constraint: `--no-simmetry-breaking`
+  - using [the OR-Tools solver](https://developers.google.com/optimization/): `--solver, lex-or-tools`
+  - using [the Gecode solver](https://github.com/Gecode/gecode): `--solver, gecode`
+  - using the Z3 SMT solver: `--solver, smt`
+
+Configure Boreas to run the optimizer using [Google's OR-Tools solver](https://developers.google.com/optimization/):
+  - Add `Options = --solver, lex-or-tools`
+
 ## Credits
   - Jacopo Mauro: [Zephyrus2](https://bitbucket.org/jacopomauro/zephyrus2)
   - Nick Joyce: «[Building Minimal Docker Containers for Python Applications](https://blog.realkinetic.com/building-minimal-docker-containers-for-python-applications-37d0272c52f3)» ([Dockerfile](Dockerfile) design)
