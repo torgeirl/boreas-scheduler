@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: balder
+  name: backend
 spec:
   selector:
     matchLabels:
-      app: balder
-  replicas: 12
+      app: backend
+  replicas: 3
   template:
     metadata:
       labels:
-        app: balder
+        app: backend
     spec:
       containers:
-      - name: balder-container
-        image: k8s.gcr.io/pause
+      - name: backend-container
+        image: k8s.gcr.io/pause:2.0
         resources:
           requests:
-            cpu: "800m"
-            memory: "1600M"
+            cpu: "300m"
+            memory: "500M"

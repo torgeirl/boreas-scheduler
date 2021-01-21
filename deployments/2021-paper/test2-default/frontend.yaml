@@ -1,31 +1,31 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nerthus
+  name: frontend
 spec:
   selector:
     matchLabels:
-      app: nerthus
-  replicas: 12
+      app: frontend
+  replicas: 3
   template:
     metadata:
       labels:
-        app: nerthus
+        app: frontend
     spec:
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
           - labelSelector:
               matchExpressions:
-              - key: app 
+              - key: app
                 operator: In
                 values:
-                -  nerthus
+                -  frontend
             topologyKey: "kubernetes.io/hostname"
       containers:
-      - name: nerthus-container
-        image: k8s.gcr.io/pause
+      - name: backend-container
+        image: k8s.gcr.io/pause:2.0
         resources:
           requests:
-            cpu: "600m"
-            memory: "1200M"
+            cpu: "300m"
+            memory: "400M"

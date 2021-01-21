@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: skadi
+  name: cache
 spec:
   selector:
     matchLabels:
-      app: skadi
-  replicas: 18
+      app: cache
+  replicas: 4
   template:
     metadata:
       labels:
-        app: skadi
+        app: cache
     spec:
       schedulerName: boreas-scheduler
       containers:
-      - name: skadi-container
-        image: k8s.gcr.io/pause
+      - name: cache-container
+        image: k8s.gcr.io/pause:2.0
         resources:
           requests:
-            cpu: "400m"
-            memory: "800M"
+            cpu: "200m"
+            memory: "400M"
