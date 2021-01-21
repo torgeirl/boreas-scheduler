@@ -1,4 +1,4 @@
-# v0.3.0 (unreleased)
+# v0.3.0 (2021-01-21)
 **Updated dependencies**
 - added `pytz`
 
