@@ -1,3 +1,7 @@
+# v0.4.0 (unreleased)
+**Updated dependencies**
+- `kubernetes`: bumped to version 17.17
+
 # v0.3.0 (2021-01-21)
 **Updated dependencies**
 - added `pytz`
