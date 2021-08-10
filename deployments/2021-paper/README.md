@@ -24,6 +24,11 @@ Reserving compute resources for the other system services has to be [set during 
 ## Running the evaluation tests
 Build a test cluster with worker nodes configured with 1 CPUs and 4 GB RAM each. When a test requires fewer nodes than the cluster has available excess worker nodes should be [cordoned](https://v1-19.docs.kubernetes.io/docs/concepts/architecture/nodes/#manual-node-administration) in order to recreate the test scenario fully.
 
+Configure and run Boreas on the master node:
+  - adjust `ReservedKubletCPU` and `ReservedKubletRAM` in `src/settings.ini` if needed
+  - change the solver to OR-Tools by adding `Options = --solver, lex-or-tools` under `[optimizer]`
+  - deploy Boreas locally with the deployment script
+
 Run the tests as regular Kubernetes deployments, ie:
   - `$ kubectl create -f deployments/2021-paper/test1-boreas`
 
