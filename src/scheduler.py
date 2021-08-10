@@ -21,7 +21,7 @@ from health_server import HealthServer
 
 
 class Scheduler():
-    def __init__(self, name, reserved_kublet_cpu, reserved_kublet_ram, no_solution_found_warning, optimizer_port, optimizer_options):
+    def __init__(self, name, namespace, reserved_kublet_cpu, reserved_kublet_ram, no_solution_found_warning, require_scheduler_name_spec, optimizer_port, optimizer_options):
         '''Load kubernetes config and connect to the API server.'''
         try:
             config.load_incluster_config()
@@ -29,9 +29,11 @@ class Scheduler():
             exit('Unable to load cluster config: {}'.format(e))
         self.api = client.CoreV1Api()
         self.name = name
+        self.namespace = namespace
         self.reserved_kublet_cpu = reserved_kublet_cpu
         self.reserved_kublet_ram = reserved_kublet_ram
         self.no_solution_found_warning = no_solution_found_warning
+        self.require_scheduler_name_spec = require_scheduler_name_spec
         self.optimizer = self.Optimizer(optimizer_port, optimizer_options)
         self.nicknames = bidict() # we naively assume names don't change during runtime; TODO don't
 
@@ -236,7 +238,7 @@ class Scheduler():
         return regular_events, replica_sets, labels
 
 
-    def schedule(self, name, node, namespace='default'):
+    def schedule(self, name, node, namespace):
         '''Create a binding object to schedule the pod.'''
         target = client.V1ObjectReference(kind = 'Node', api_version = 'v1', name = node)
         meta = client.V1ObjectMeta(name = name)
@@ -244,7 +246,7 @@ class Scheduler():
         self.api.create_namespaced_binding(namespace=namespace, body=body, _preload_content=False)
 
 
-    def warn_no_solution_found(self, event, namespace='default'):
+    def warn_no_solution_found(self, event, namespace):
         '''Add event message to pod description when optimizer is unable to find solution.'''
         object = client.V1ObjectReference(api_version = 'v1',
                                           kind = 'Pod',
@@ -317,18 +319,18 @@ class Scheduler():
                             for i in range(result['configuration']['locations'][node]['0'][pod]):
                                 pod_name = replica_sets[pod].pop()['object'].metadata.name
                                 print('Scheduling \'{}\' on {}'.format(pod_name, node_name))
-                                self.schedule(pod_name, node_name)
+                                self.schedule(pod_name, node_name, self.namespace)
                         else:
                             pod_name = self.get_nickname(pod)
                             print('Scheduling \'{}\' on {}'.format(pod_name, node_name))
-                            self.schedule(pod_name, node_name)
+                            self.schedule(pod_name, node_name, self.namespace)
             except client.rest.ApiException as e:
                 raise Exception(json_loads(e.body)['message'])
         else:
             print('Warning: no configuration returned from optimizer: {}'.format(result['error']))
             if self.no_solution_found_warning:
                 for event in regular_events:
-                    self.warn_no_solution_found(event)
+                    self.warn_no_solution_found(event, self.namespace)
 
 
     def get_event_batch(self, previous, batch_limit, time_limit):
@@ -336,7 +338,7 @@ class Scheduler():
         w = watch.Watch()
         batch = []
         for event in w.stream(self.api.list_namespaced_pod, 'default', timeout_seconds=time_limit):
-            if event['object'].status.phase == 'Pending' and event['object'].spec.scheduler_name == self.name:
+            if event['object'].status.phase == 'Pending' and (not self.require_scheduler_name_spec or event['object'].spec.scheduler_name == self.name):
                 if not previous or not event['object'].metadata.name in previous:
                     batch.append(event)
                     if len(batch) == batch_limit:
@@ -366,9 +368,11 @@ if __name__ == '__main__':
     settings.read('settings.ini')
     HealthServer(port=settings.getint('scheduler', 'HealthPort')).start()
     scheduler = Scheduler(settings['scheduler']['SchedulerName'],
+                          namespace=settings.get('scheduler', 'Namespace', fallback='default'),
                           reserved_kublet_cpu=settings.getint('scheduler', 'ReservedKubletCPU'),
                           reserved_kublet_ram=settings.getint('scheduler', 'ReservedKubletRAM'),
                           no_solution_found_warning=settings.getboolean('scheduler', 'WarnNoSolutionFound'),
+                          require_scheduler_name_spec=settings.getboolean('scheduler', 'RequireSchedulerNameSpec'),
                           optimizer_port=settings.getint('optimizer', 'Port'),
                           optimizer_options=settings.get('optimizer', 'Options', fallback=None))
     asyncio.run(scheduler.start(batch_limit=settings.getint('scheduler', 'BatchSize'),
