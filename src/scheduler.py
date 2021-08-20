@@ -21,7 +21,7 @@ from health_server import HealthServer
 
 
 class Scheduler():
-    def __init__(self, name, namespace, reserved_kublet_cpu, reserved_kublet_ram, no_solution_found_warning, require_scheduler_name_spec, optimizer_port, optimizer_options):
+    def __init__(self, name, namespace, reserved_kublet_cpu, reserved_kublet_ram, default_request_cpu, default_request_ram, no_solution_found_warning, require_scheduler_name_spec, optimizer_port, optimizer_options):
         '''Load kubernetes config and connect to the API server.'''
         try:
             config.load_incluster_config()
@@ -32,6 +32,8 @@ class Scheduler():
         self.namespace = namespace
         self.reserved_kublet_cpu = reserved_kublet_cpu
         self.reserved_kublet_ram = reserved_kublet_ram
+        self.default_request_cpu = default_request_cpu
+        self.default_request_ram = default_request_ram
         self.no_solution_found_warning = no_solution_found_warning
         self.require_scheduler_name_spec = require_scheduler_name_spec
         self.optimizer = self.Optimizer(optimizer_port, optimizer_options)
@@ -114,11 +116,27 @@ class Scheduler():
                     if container.resources.requests:
                         try:
                             nodes[pod.spec.node_name]['cpu'] += self.cpu_convertion(container.resources.requests['cpu'])
-                            nodes[pod.spec.node_name]['memory'] += self.ram_convertion(container.resources.requests['memory'])
                         except KeyError as e:
-                            raise Exception('Resource request for {}\'s {} container lacks {} key.'.format(pod.metadata.name, container.name, e))
+                            if self.default_request_cpu:
+                                print('Warning: CPU request for {}\'s {} container missing, used default ({}).'.format(pod.metadata.name, container.name, self.default_request_cpu))
+                                nodes[pod.spec.node_name]['cpu'] += self.cpu_convertion(self.default_request_cpu)
+                            else:
+                                raise Exception('Resource request for {}\'s {} container lacks {} key.'.format(pod.metadata.name, container.name, e))
+                        try:
+                            nodes[pod.spec.node_name]['memory'] += self.ram_convertion(container.resources.requests['memory'])
+                         except KeyError as e:
+                            if self.default_request_ram:
+                                print('Warning: Memory request for {}\'s {} container missing, used default ({}).'.format(pod.metadata.name, container.name, self.default_request_ram))
+                                nodes[pod.spec.node_name]['memory'] += self.ram_convertion(self.default_request_ram)
+                            else:
+                                raise Exception('Resource request for {}\'s {} container lacks {} key.'.format(pod.metadata.name, container.name, e))
                     else:
-                        raise Exception('Error: {}\'s {} container lacks resource request.'.format(pod.metadata.name, container.name))
+                        if self.default_request_cpu and self.default_request_ram:
+                            print('Warning: {}\'s {} container lacks resource requests, used defaults (CPU: {} and memory: {}).'.format(pod.metadata.name, container.name, self.default_request_cpu, self.default_request_ram))
+                            nodes[pod.spec.node_name]['cpu'] += self.cpu_convertion(self.default_request_cpu)
+                            nodes[pod.spec.node_name]['memory'] += self.ram_convertion(self.default_request_ram)
+                        else:
+                            raise Exception('Error: {}\'s {} container lacks resource requests.'.format(pod.metadata.name, container.name))
         return nodes
 
 
@@ -371,6 +389,8 @@ if __name__ == '__main__':
                           namespace=settings.get('scheduler', 'Namespace', fallback='default'),
                           reserved_kublet_cpu=settings.getint('scheduler', 'ReservedKubletCPU'),
                           reserved_kublet_ram=settings.getint('scheduler', 'ReservedKubletRAM'),
+                          default_request_cpu=settings.get('scheduler', 'DefaultRequestCPU', fallback=None),
+                          default_request_ram=settings.get('scheduler', 'DefaultRequestRAM', fallback=None),
                           no_solution_found_warning=settings.getboolean('scheduler', 'WarnNoSolutionFound'),
                           require_scheduler_name_spec=settings.getboolean('scheduler', 'RequireSchedulerNameSpec'),
                           optimizer_port=settings.getint('optimizer', 'Port'),
