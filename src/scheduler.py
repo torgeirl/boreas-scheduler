@@ -124,7 +124,7 @@ class Scheduler():
                                 raise Exception('Resource request for {}\'s {} container lacks {} key.'.format(pod.metadata.name, container.name, e))
                         try:
                             nodes[pod.spec.node_name]['memory'] += self.ram_convertion(container.resources.requests['memory'])
-                         except KeyError as e:
+                        except KeyError as e:
                             if self.default_request_ram:
                                 print('Warning: Memory request for {}\'s {} container missing, used default ({}).'.format(pod.metadata.name, container.name, self.default_request_ram))
                                 nodes[pod.spec.node_name]['memory'] += self.ram_convertion(self.default_request_ram)
