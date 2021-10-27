@@ -74,5 +74,5 @@ jobs:
           for VALUE in $VERSION
           do
               docker tag $IMAGE_NAME $IMAGE_ID:$VALUE
+              docker push $IMAGE_ID:$VALUE
           done
-          docker push $IMAGE_ID:$VERSION
