@@ -1,6 +1,6 @@
 # v0.4.0 (unreleased)
 **Updated dependencies**
-- `kubernetes`: bumped to version 18.20
+- `kubernetes`: bumped to version 19.15
 - added scheduler options to adjust pod namespace, allow scheduling of pods without a corresponding `SchedulerName` spec, and provide default CPU and memory resource requests for existing pods
 
 # v0.3.0 (2021-01-21)
