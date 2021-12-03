@@ -67,7 +67,7 @@ For instance, the following will instruct Zephyrus2 to use OR-Tools as its solve
   - Nick Joyce: «[Building Minimal Docker Containers for Python Applications](https://blog.realkinetic.com/building-minimal-docker-containers-for-python-applications-37d0272c52f3)» ([Dockerfile](Dockerfile) design)
 
 ## Citation
-If you use this software in your research, please cite is at described in [CITATION](CITATION).
+If you use this software in your work, please cite it as described in [CITATION](CITATION).
 
 ## License
 See the [LICENSE](LICENSE.md) file for license rights and limitations (MIT).
