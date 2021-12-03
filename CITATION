@@ -1,0 +1,8 @@
+@inproceedings{lebesbye2021boreas,
+  title={Boreas--A Service Scheduler for Optimal Kubernetes Deployment},
+  author={Lebesbye, Torgeir and Mauro, Jacopo and Turin, Gianluca and Yu, Ingrid Chieh},
+  booktitle={International Conference on Service-Oriented Computing},
+  pages={221--237},
+  year={2021},
+  organization={Springer}
+}

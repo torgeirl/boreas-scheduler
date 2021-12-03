@@ -1,3 +1,7 @@
+# v0.5.0 (unreleased)
+**Updated dependencies**
+- `kubernetes`: bumped to version 20.13
+
 # v0.4.0 (2021-10-27)
 **Updated dependencies**
 - `kubernetes`: bumped to version 19.15
