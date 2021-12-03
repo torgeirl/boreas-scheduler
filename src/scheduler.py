@@ -3,7 +3,7 @@
 import asyncio
 from collections import defaultdict
 import configparser
-from datetime import datetime
+from datetime import datetime, timezone
 from functools import partial
 from json import dumps as json_dumps, loads as json_loads
 from re import match as re_match
@@ -15,7 +15,6 @@ from unittest.mock import Mock
 
 from bidict import bidict
 from kubernetes import client, config, watch
-import pytz
 
 from health_server import HealthServer
 
@@ -274,7 +273,7 @@ class Scheduler():
                                           uid = event['object'].metadata.uid)
         meta = client.V1ObjectMeta(name = event['object'].metadata.name)
         source = client.V1EventSource(component = self.name)
-        timestamp = datetime.now(pytz.utc)
+        timestamp = datetime.now(timezone.utc)
         body = client.V1Event(count = 1,
                               first_timestamp = timestamp,
                               involved_object = object,
