@@ -1,2 +1,2 @@
 bidict # MPL-2.0
-kubernetes==20.13.* # Apache-2.0
+kubernetes==21.7.* # Apache-2.0
