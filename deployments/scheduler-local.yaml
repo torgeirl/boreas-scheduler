@@ -41,7 +41,7 @@ spec:
       serviceAccount: boreas-scheduler
       containers:
       - name: boreas-scheduler
-        image: localhost/boreas-scheduler:local
+        image: localhost:5000/boreas-scheduler:local
         livenessProbe:
           httpGet:
             path: /health

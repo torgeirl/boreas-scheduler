@@ -22,6 +22,9 @@ Pod description and logs are also available:
 Install Buildah to work with images locally (requires Ubuntu 20.10 or newer):
   - `$ sudo apt-get install buildah`
 
+Starting a local image registry:
+  - T.B.C.
+
 Then run the deployment script:
   - `$ bash build/deploy-locally`
 
