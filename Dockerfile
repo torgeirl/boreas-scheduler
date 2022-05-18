@@ -1,4 +1,4 @@
-FROM python:3.10-slim as base
+FROM docker.io/library/python:3.10-slim as base
 FROM base as builder
 
 RUN mkdir /install

@@ -6,7 +6,7 @@ boreas-scheduler
 ## Overview
 
 ## Deploy Boreas scheduler
-You can deploy the Boreas scheduler on your master node by either pulling it from the Github Container Registry (recommended), or by building it yourself and deploying it to a local Docker registry. The later is mostly useful for development of the Boreas scheduler itself.
+You can deploy the Boreas scheduler on your master node by either pulling it from the Github Container Registry (recommended), or by building it yourself and deploying it to a local container registry. The later is mostly useful for development of the Boreas scheduler itself.
 
 You can see the scheduler's pod by listing pods in the system namespace:
   - `$ kubectl get pods --namespace=kube-system`
@@ -18,28 +18,19 @@ Pod description and logs are also available:
 ### Deploy from the Github Container Registry
   - `$ kubectl create -f deployments/scheduler.yaml`
 
-### Deploy from local Docker registry
-Deploy a [local Docker registry](https://docs.docker.com/registry/deploying/):
-  - `$ docker run -d -p 5000:5000 --restart=always --name registry registry:2`
+### Deploy from local container registry
+Install Buildah to work with images locally (requires Ubuntu 20.10 or newer):
+  - `$ sudo apt-get install buildah`
 
 Then run the deployment script:
   - `$ bash build/deploy-locally`
 
-which deploys the scheduler locally in four steps:
+which deploys the scheduler locally in two steps:
 
-(1) Build a Docker image:
-  - `$ docker build -t boreas-scheduler:local .`
+(1) Build a container image:
+  - `$ buildah bud -t boreas-scheduler:local`
 
-(2) Tag the image and push it to your local registry:
-  - `$ docker tag boreas-scheduler:local localhost:5000/boreas-scheduler:local`
-  - `$ docker push localhost:5000/boreas-scheduler:local`
-
-(3) Remove the locally-cached images, and then pull the image from your registry:
-  - `$ docker image remove boreas-scheduler:local`
-  - `$ docker image remove localhost:5000/boreas-scheduler:local`
-  - `$ docker pull localhost:5000/boreas-scheduler:local`
-
-(4) Deploy the sheduler to Kubernetes:
+(2) Deploy the sheduler to Kubernetes:
   - `$ kubectl create -f deployments/scheduler-local.yaml`
 
 ## Remove Boreas scheduler
@@ -51,7 +42,7 @@ which removes the scheduler by running the following:
   - `$ kubectl delete serviceaccount --namespace=kube-system boreas-scheduler`
 
 ## Advanced optimizer settings
-Boreas can be configured to include options with the optimizing requests sent to Zephyrus2 through an optional `Options` setting. The setting must be set under `[optimizer]` in `src/settings.ini` before deploying Boreas from a local Docker registry.
+Boreas can be configured to include options with the optimizing requests sent to Zephyrus2 through an optional `Options` setting. The setting must be set under `[optimizer]` in `src/settings.ini` before deploying Boreas from a local container registry.
 
 Details on the available options can be found in [Zephyrus2's documentation](https://bitbucket.org/jacopomauro/zephyrus2), but options include:
   - disabling Zephyrus2's symmetry breaking constraint: `--no-simmetry-breaking`
