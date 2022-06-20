@@ -14,7 +14,7 @@ from time import perf_counter, sleep
 from unittest.mock import Mock
 
 from bidict import bidict
-from kubernetes import client, config, watch
+from kubernetes import client as k8s_client, config as k8s_config, watch as k8s_watch
 
 from health_server import HealthServer
 
@@ -23,10 +23,10 @@ class Scheduler():
     def __init__(self, name, namespace, reserved_kublet_cpu, reserved_kublet_ram, default_request_cpu, default_request_ram, no_solution_found_warning, require_scheduler_name_spec, optimizer_port, optimizer_options):
         '''Load kubernetes config and connect to the API server.'''
         try:
-            config.load_incluster_config()
+            k8s_config.load_incluster_config()
         except Exception as e:
             exit('Unable to load cluster config: {}'.format(e))
-        self.api = client.CoreV1Api()
+        self.api = k8s_client.CoreV1Api()
         self.name = name
         self.namespace = namespace
         self.reserved_kublet_cpu = reserved_kublet_cpu
@@ -257,24 +257,24 @@ class Scheduler():
 
     def schedule(self, name, node, namespace):
         '''Create a binding object to schedule the pod.'''
-        target = client.V1ObjectReference(kind = 'Node', api_version = 'v1', name = node)
-        meta = client.V1ObjectMeta(name = name)
-        body = client.V1Binding(target = target, metadata = meta)
+        target = k8s_client.V1ObjectReference(kind = 'Node', api_version = 'v1', name = node)
+        meta = k8s_client.V1ObjectMeta(name = name)
+        body = k8s_client.V1Binding(target = target, metadata = meta)
         self.api.create_namespaced_binding(namespace=namespace, body=body, _preload_content=False)
 
 
     def warn_no_solution_found(self, event, namespace):
         '''Add event message to pod description when optimizer is unable to find solution.'''
-        object = client.V1ObjectReference(api_version = 'v1',
+        object = k8s_client.V1ObjectReference(api_version = 'v1',
                                           kind = 'Pod',
                                           name = event['object'].metadata.name,
                                           namespace = namespace,
                                           resource_version = event['object'].metadata.resource_version,
                                           uid = event['object'].metadata.uid)
-        meta = client.V1ObjectMeta(name = event['object'].metadata.name)
-        source = client.V1EventSource(component = self.name)
+        meta = k8s_client.V1ObjectMeta(name = event['object'].metadata.name)
+        source = k8s_client.V1EventSource(component = self.name)
         timestamp = datetime.now(timezone.utc)
-        body = client.V1Event(count = 1,
+        body = k8s_client.V1Event(count = 1,
                               first_timestamp = timestamp,
                               involved_object = object,
                               last_timestamp = timestamp,
@@ -341,7 +341,7 @@ class Scheduler():
                             pod_name = self.get_nickname(pod)
                             print('Scheduling \'{}\' on {}'.format(pod_name, node_name))
                             self.schedule(pod_name, node_name, self.namespace)
-            except client.rest.ApiException as e:
+            except k8s_client.rest.ApiException as e:
                 raise Exception(json_loads(e.body)['message'])
         else:
             print('Warning: no configuration returned from optimizer: {}'.format(result['error']))
@@ -352,7 +352,7 @@ class Scheduler():
 
     def get_event_batch(self, previous, batch_limit, time_limit):
         '''Returns a batch of N events, or what could be found within the time limit.'''
-        w = watch.Watch()
+        w = k8s_watch.Watch()
         batch = []
         for event in w.stream(self.api.list_namespaced_pod, 'default', timeout_seconds=time_limit):
             if event['object'].status.phase == 'Pending' and (not self.require_scheduler_name_spec or event['object'].spec.scheduler_name == self.name):
