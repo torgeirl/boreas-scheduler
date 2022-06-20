@@ -29,13 +29,13 @@ class Scheduler():
         self.api = k8s_client.CoreV1Api()
         self.name = getenv('BOREAS_SCHEDULER_NAME', 'boreas-scheduler')
         self.namespace = getenv('BOREAS_SCHEDULER_NAMESPACE', 'default')
-        self.reserved_kublet_cpu = getenv('BOREAS_SCHEDULER_RESERVED_KUBLET_CPU', 100)
-        self.reserved_kublet_ram = getenv('BOREAS_SCHEDULER_RESERVED_KUBLET_RAM', 50)
-        self.default_request_cpu = getenv('BOREAS_SCHEDULER_DEFAULT_REQUEST_CPU', None)
-        self.default_request_ram = getenv('BOREAS_SCHEDULER_DEFAULT_REQUEST_RAM', None)
+        self.reserved_kublet_cpu = int(getenv('BOREAS_SCHEDULER_RESERVED_KUBLET_CPU', 100))
+        self.reserved_kublet_ram = int(getenv('BOREAS_SCHEDULER_RESERVED_KUBLET_RAM', 50))
+        self.default_request_cpu = int(getenv('BOREAS_SCHEDULER_DEFAULT_REQUEST_CPU')) if getenv('BOREAS_SCHEDULER_DEFAULT_REQUEST_CPU') else None
+        self.default_request_ram = int(getenv('BOREAS_SCHEDULER_DEFAULT_REQUEST_RAM')) if getenv('BOREAS_SCHEDULER_DEFAULT_REQUEST_RAM') else None
         self.no_solution_found_warning = getenv('BOREAS_SCHEDULER_NO_SOLUTION_FOUND_WARNING', False)
         self.require_scheduler_name_spec = getenv('BOREAS_SCHEDULER_REQUIRE_SCHEDULER_NAME_SPEC', True)
-        self.optimizer = self.Optimizer(getenv('BOREAS_OPTIMIZER_PORT', 9001),
+        self.optimizer = self.Optimizer(int(getenv('BOREAS_OPTIMIZER_PORT', 9001)),
                                         getenv('BOREAS_OPTIMIZER_OPTIONS', '--solver, lex-or-tools'))
         self.nicknames = bidict() # we naively assume names don't change during runtime; TODO don't
 
@@ -382,7 +382,7 @@ class Scheduler():
 
 
 if __name__ == '__main__':
-    HealthServer(port=getenv('BOREAS_SCHEDULER_HEALTHPORT', 10251)).start()
+    HealthServer(port=int(getenv('BOREAS_SCHEDULER_HEALTHPORT', 10251))).start()
     scheduler = Scheduler()
-    asyncio.run(scheduler.start(batch_limit=getenv('BOREAS_SCHEDULER_BATCHSIZE', 99),
-                                time_limit=getenv('BOREAS_SCHEDULER_BATCHTIME', 30)))
+    asyncio.run(scheduler.start(batch_limit=int(getenv('BOREAS_SCHEDULER_BATCHSIZE', 99)),
+                                time_limit=int(getenv('BOREAS_SCHEDULER_BATCHTIME', 30))))
