@@ -355,7 +355,7 @@ class Scheduler():
         '''Returns a batch of N events, or what could be found within the time limit.'''
         w = k8s_watch.Watch()
         batch = []
-        for event in w.stream(self.api.list_namespaced_pod, 'default', timeout_seconds=time_limit):
+        for event in w.stream(self.api.list_namespaced_pod, self.namespace, timeout_seconds=time_limit):
             if event['object'].status.phase == 'Pending' and (not self.require_scheduler_name_spec or event['object'].spec.scheduler_name == self.name):
                 if not previous or not event['object'].metadata.name in previous:
                     batch.append(event)
