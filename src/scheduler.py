@@ -2,10 +2,10 @@
 
 import asyncio
 from collections import defaultdict
-import configparser
 from datetime import datetime, timezone
 from functools import partial
 from json import dumps as json_dumps, loads as json_loads
+from os import getenv
 from re import match as re_match
 from requests import get as requests_get, post as requests_post
 from requests.models import Response
@@ -20,22 +20,23 @@ from health_server import HealthServer
 
 
 class Scheduler():
-    def __init__(self, name, namespace, reserved_kublet_cpu, reserved_kublet_ram, default_request_cpu, default_request_ram, no_solution_found_warning, require_scheduler_name_spec, optimizer_port, optimizer_options):
+    def __init__(self):
         '''Load kubernetes config and connect to the API server.'''
         try:
             k8s_config.load_incluster_config()
         except Exception as e:
             exit('Unable to load cluster config: {}'.format(e))
         self.api = k8s_client.CoreV1Api()
-        self.name = name
-        self.namespace = namespace
-        self.reserved_kublet_cpu = reserved_kublet_cpu
-        self.reserved_kublet_ram = reserved_kublet_ram
-        self.default_request_cpu = default_request_cpu
-        self.default_request_ram = default_request_ram
-        self.no_solution_found_warning = no_solution_found_warning
-        self.require_scheduler_name_spec = require_scheduler_name_spec
-        self.optimizer = self.Optimizer(optimizer_port, optimizer_options)
+        self.name = getenv('BOREAS_SCHEDULER_NAME', 'boreas-scheduler')
+        self.namespace = getenv('BOREAS_SCHEDULER_NAMESPACE', 'default')
+        self.reserved_kublet_cpu = getenv('BOREAS_SCHEDULER_RESERVED_KUBLET_CPU', 100)
+        self.reserved_kublet_ram = getenv('BOREAS_SCHEDULER_RESERVED_KUBLET_RAM', 50)
+        self.default_request_cpu = getenv('BOREAS_SCHEDULER_DEFAULT_REQUEST_CPU', None)
+        self.default_request_ram = getenv('BOREAS_SCHEDULER_DEFAULT_REQUEST_RAM', None)
+        self.no_solution_found_warning = getenv('BOREAS_SCHEDULER_NO_SOLUTION_FOUND_WARNING', False)
+        self.require_scheduler_name_spec = getenv('BOREAS_SCHEDULER_REQUIRE_SCHEDULER_NAME_SPEC', True)
+        self.optimizer = self.Optimizer(getenv('BOREAS_OPTIMIZER_PORT', 9001),
+                                        getenv('BOREAS_OPTIMIZER_OPTIONS', '--solver, lex-or-tools'))
         self.nicknames = bidict() # we naively assume names don't change during runtime; TODO don't
 
 
@@ -381,18 +382,7 @@ class Scheduler():
 
 
 if __name__ == '__main__':
-    settings = configparser.ConfigParser()
-    settings.read('settings.ini')
-    HealthServer(port=settings.getint('scheduler', 'HealthPort')).start()
-    scheduler = Scheduler(settings['scheduler']['SchedulerName'],
-                          namespace=settings.get('scheduler', 'Namespace', fallback='default'),
-                          reserved_kublet_cpu=settings.getint('scheduler', 'ReservedKubletCPU'),
-                          reserved_kublet_ram=settings.getint('scheduler', 'ReservedKubletRAM'),
-                          default_request_cpu=settings.get('scheduler', 'DefaultRequestCPU', fallback=None),
-                          default_request_ram=settings.get('scheduler', 'DefaultRequestRAM', fallback=None),
-                          no_solution_found_warning=settings.getboolean('scheduler', 'WarnNoSolutionFound'),
-                          require_scheduler_name_spec=settings.getboolean('scheduler', 'RequireSchedulerNameSpec'),
-                          optimizer_port=settings.getint('optimizer', 'Port'),
-                          optimizer_options=settings.get('optimizer', 'Options', fallback=None))
-    asyncio.run(scheduler.start(batch_limit=settings.getint('scheduler', 'BatchSize'),
-                                time_limit=settings.getint('scheduler', 'BatchTime')))
+    HealthServer(port=getenv('BOREAS_SCHEDULER_HEALTHPORT', 10251)).start()
+    scheduler = Scheduler()
+    asyncio.run(scheduler.start(batch_limit=getenv('BOREAS_SCHEDULER_BATCHSIZE', 99),
+                                time_limit=getenv('BOREAS_SCHEDULER_BATCHTIME', 30)))

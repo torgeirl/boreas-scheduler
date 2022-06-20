@@ -49,7 +49,7 @@ which removes the scheduler by running the following:
   - `$ kubectl delete serviceaccount --namespace=kube-system boreas-scheduler`
 
 ## Advanced optimizer settings
-Boreas can be configured to include options with the optimizing requests sent to Zephyrus2 through an optional `Options` setting. The setting must be set under `[optimizer]` in `src/settings.ini` before deploying Boreas from a local container registry.
+Boreas can be configured to include options with the optimizing requests sent to Zephyrus2 through the `BOREAS_OPTIMIZER_OPTIONS` environment variable.
 
 Details on the available options can be found in [Zephyrus2's documentation](https://bitbucket.org/jacopomauro/zephyrus2), but options include:
   - disabling Zephyrus2's symmetry breaking constraint: `--no-simmetry-breaking`
@@ -58,7 +58,7 @@ Details on the available options can be found in [Zephyrus2's documentation](htt
   - using the Z3 SMT solver: `--solver, smt`
 
 For instance, the following will instruct Zephyrus2 to use OR-Tools as its solver:
-  - Add `Options = --solver, lex-or-tools`
+  - `BOREAS_OPTIMIZER_OPTIONS='--solver, lex-or-tools'`
 
 ## Credits
   - Jacopo Mauro: [Zephyrus2](https://bitbucket.org/jacopomauro/zephyrus2)

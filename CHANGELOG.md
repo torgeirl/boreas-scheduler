@@ -3,6 +3,7 @@
 - bumped docker base image from `python:3.9-slim` to `python:3.10-slim`
 - `kubernetes`: bumped to version 23.6
 - removed `pytz`
+- moved options from a config file to environment variables
 
 # v0.4.0 (2021-10-27)
 **Updated dependencies**
