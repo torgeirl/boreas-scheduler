@@ -1,2 +1,2 @@
 bidict # MPL-2.0
-kubernetes==23.6.* # Apache-2.0
+kubernetes==24.2.* # Apache-2.0
