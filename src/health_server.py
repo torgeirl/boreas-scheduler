@@ -1,10 +1,7 @@
 #!/usr/bin/env python3
 
 from http.server import BaseHTTPRequestHandler, HTTPServer
-import logging
 from threading import Thread
-
-logger = logging.getLogger(__name__)
 
 
 class HealthServer(Thread):
@@ -25,8 +22,7 @@ class HealthServer(Thread):
                 self.wfile.write(b'OK\n')
 
         def log_message(self, format, *args):
-            logger.debug(u'%s - - [%s] %s\n' % (self.address_string(),
-                         self.log_date_time_string(), format%args))
+            return
 
     def run(self):
         server = HTTPServer(('', self.port), self.HealthRequestHandler)

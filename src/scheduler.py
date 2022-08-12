@@ -5,7 +5,6 @@ from collections import defaultdict
 from datetime import datetime, timezone
 from functools import partial
 from json import dumps as json_dumps, loads as json_loads
-import logging
 from os import getenv
 from re import match as re_match
 from requests import get as requests_get, post as requests_post
@@ -19,9 +18,6 @@ from kubernetes import client as k8s_client, config as k8s_config, watch as k8s_
 
 from health_server import HealthServer
 
-LOGLEVEL = getenv('BOREAS_SCHEDULER_LOGLEVEL', 'INFO').upper()
-logging.basicConfig(level=LOGLEVEL)
-logger = logging.getLogger(__name__)
 
 class Scheduler():
     def __init__(self):
@@ -122,7 +118,7 @@ class Scheduler():
                             nodes[pod.spec.node_name]['cpu'] += self.cpu_convertion(container.resources.requests['cpu'])
                         except KeyError as e:
                             if self.default_request_cpu:
-                                logger.warning(u'CPU request for {}\'s {} container missing, used default ({}).'.format(pod.metadata.name, container.name, self.default_request_cpu))
+                                print('Warning: CPU request for {}\'s {} container missing, used default ({}).'.format(pod.metadata.name, container.name, self.default_request_cpu))
                                 nodes[pod.spec.node_name]['cpu'] += self.cpu_convertion(self.default_request_cpu)
                             else:
                                 raise Exception('Resource request for {}\'s {} container lacks {} key.'.format(pod.metadata.name, container.name, e))
@@ -130,13 +126,13 @@ class Scheduler():
                             nodes[pod.spec.node_name]['memory'] += self.ram_convertion(container.resources.requests['memory'])
                         except KeyError as e:
                             if self.default_request_ram:
-                                logger.warning(u'Memory request for {}\'s {} container missing, used default ({}).'.format(pod.metadata.name, container.name, self.default_request_ram))
+                                print('Warning: memory request for {}\'s {} container missing, used default ({}).'.format(pod.metadata.name, container.name, self.default_request_ram))
                                 nodes[pod.spec.node_name]['memory'] += self.ram_convertion(self.default_request_ram)
                             else:
                                 raise Exception('Resource request for {}\'s {} container lacks {} key.'.format(pod.metadata.name, container.name, e))
                     else:
                         if self.default_request_cpu and self.default_request_ram:
-                            logger.warning(u'{}\'s {} container lacks resource requests, used defaults (CPU: {} and memory: {}).'.format(pod.metadata.name, container.name, self.default_request_cpu, self.default_request_ram))
+                            print('Warning: {}\'s {} container lacks resource requests, used defaults (CPU: {} and memory: {}).'.format(pod.metadata.name, container.name, self.default_request_cpu, self.default_request_ram))
                             nodes[pod.spec.node_name]['cpu'] += self.cpu_convertion(self.default_request_cpu)
                             nodes[pod.spec.node_name]['memory'] += self.ram_convertion(self.default_request_ram)
                         else:
@@ -202,14 +198,14 @@ class Scheduler():
                                         if entity != event['object'].metadata.name:
                                             affinities.append('(forall ?x in locations: (?x.{} > 0 impl ?x.{} = 0))'.format(pod_nickname, self.set_nickname(entity)))
                         else:
-                            logger.warning(u'Anti-affinity operator \'{}\' not currently supported.'.format(expression.operator))
+                            print('Warning: anti-affinity operator \'{}\' not currently supported.'.format(expression.operator))
                         # TODO add support for 'Exists', 'NotIn' and 'DoesNotExist' operators
                 # TODO selector.label_selector.match_labels
                 # TODO selector.namespaces
                 else:
                     raise Exception('Admission controller is modified or LimitPodHardAntiAffinityTopology has been disabled.')
             if event['object'].spec.affinity.pod_anti_affinity.preferred_during_scheduling_ignored_during_execution:
-                logger.warning(u'Preferred pod anti-affinity not currently supported.')
+                print('Warning: preferred pod anti-affinity not currently supported.')
         if event['object'].spec.affinity and event['object'].spec.affinity.pod_affinity:
             for selector in event['object'].spec.affinity.pod_affinity.required_during_scheduling_ignored_during_execution:
                 if selector.topology_key == 'kubernetes.io/hostname':
@@ -223,14 +219,14 @@ class Scheduler():
                                         if entity != event['object'].metadata.name:
                                             affinities.append('(forall ?x in locations: (?x.{} > 0 impl ?x.{} > 0))'.format(pod_nickname, self.set_nickname(entity)))
                         else:
-                            logger.warning(u'Affinity operator \'{}\' not currently supported.'.format(expression.operator))
+                            print('Warning: affinity operator \'{}\' not currently supported.'.format(expression.operator))
                         # TODO add support for 'Exists', 'NotIn' and 'DoesNotExist' operators
                 # TODO selector.label_selector.match_labels
                 # TODO selector.namespaces
                 else:
-                    logger.warning(u'Affinity topology key \'{}\' not currently supported.'.format(selector.topology_key))
+                    print('Warning: affinity topology key \'{}\' not currently supported.'.format(selector.topology_key))
             if event['object'].spec.affinity.pod_affinity.preferred_during_scheduling_ignored_during_execution:
-                logger.warning(u'Preferred pod affinity not currently supported.')
+                print('Warning: preferred pod affinity not currently supported.')
         if len(affinities) > 0:
             return ' and '.join(affinities)
         else:
@@ -299,7 +295,7 @@ class Scheduler():
             try:
                 response = requests_get('http://127.0.0.1:{}/health'.format(self.optimizer.port))
             except:
-                logger.debug(u'Waiting for optimizer at port {} to get ready'.format(self.optimizer.port))
+                print('Waiting for optimizer at port {} to get ready'.format(self.optimizer.port))
                 sleep(1)
                 pass
 
@@ -328,10 +324,10 @@ class Scheduler():
             affinities = self.pod_affinities(set_events[0], set_nickname, labels, replica_sets)
             if affinities: spec['specification'] += ' and {}'.format(affinities)
         spec['specification'] += '; cost; (sum ?y in components: ?y)'
-        #logger.debug(json_dumps(labels, sort_keys=True, indent=4))
-        logger.debug(json_dumps(spec, sort_keys=True, indent=4))
+        #print(json_dumps(labels, sort_keys=True, indent=4))
+        print(json_dumps(spec, sort_keys=True, indent=4))
         result = self.optimizer.optimize(spec)
-        logger.debug(json_dumps(result, sort_keys=True, indent=4))
+        print(json_dumps(result, sort_keys=True, indent=4))
         if 'configuration' in result:
             try:
                 for node in result['configuration']['locations']:
@@ -340,16 +336,16 @@ class Scheduler():
                         if pod in replica_sets:
                             for i in range(result['configuration']['locations'][node]['0'][pod]):
                                 pod_name = replica_sets[pod].pop()['object'].metadata.name
-                                logger.info(u'Scheduling \'{}\' on {}'.format(pod_name, node_name))
+                                print('Scheduling \'{}\' on {}'.format(pod_name, node_name))
                                 self.schedule(pod_name, node_name, self.namespace)
                         else:
                             pod_name = self.get_nickname(pod)
-                            logger.info(u'Scheduling \'{}\' on {}'.format(pod_name, node_name))
+                            print('Scheduling \'{}\' on {}'.format(pod_name, node_name))
                             self.schedule(pod_name, node_name, self.namespace)
             except k8s_client.rest.ApiException as e:
                 raise Exception(json_loads(e.body)['message'])
         else:
-            logger.warning(u'Warning: no configuration returned from optimizer: {}'.format(result['error']))
+            print('Warning: no configuration returned from optimizer: {}'.format(result['error']))
             if self.no_solution_found_warning:
                 for event in regular_events:
                     self.warn_no_solution_found(event, self.namespace)
@@ -372,7 +368,7 @@ class Scheduler():
     async def start(self, batch_limit, time_limit):
         '''Receive and process scheduling events once the optimizer is ready.'''
         self.wait_for_optimizer()
-        logger.info(u'Listning for scheduling events to process.')
+        print('Listning for scheduling events to process.')
         previous = None
         while True:
             batch = await asyncio.to_thread(partial(self.get_event_batch, previous, batch_limit, time_limit))
@@ -381,7 +377,7 @@ class Scheduler():
                 self.schedule_events(batch)
                 finish_time = perf_counter()
                 previous = [d['object'].metadata.name for d in batch]
-                logger.info(u'Finished processing {} pods in {:.4f} seconds'.format(len(batch), finish_time-start_time))
+                print('Finished processing {} pods in {:.4f} seconds'.format(len(batch), finish_time-start_time))
                 batch.clear()
 
 
