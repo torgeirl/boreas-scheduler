@@ -1,7 +1,7 @@
 # v0.5.0 (unreleased)
 **Updated dependencies**
 - bumped docker base image from `python:3.9-slim` to `python:3.10-slim`
-- `kubernetes`: bumped to version 25.3
+- `kubernetes`: bumped to version 26.1
 - removed `pytz`
 - moved options from a config file to environment variables
 
