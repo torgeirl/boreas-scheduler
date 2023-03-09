@@ -146,7 +146,7 @@ class Scheduler():
         ready_nodes = {}
         for n in self.api.list_node().items:
             for status in n.status.conditions:
-                if status.status == 'True' and status.type == 'Ready' and not n.spec.unschedulable and 'node-role.kubernetes.io/master' not in n.metadata.labels:
+                if status.status == 'True' and status.type == 'Ready' and not n.spec.unschedulable and 'node-role.kubernetes.io/control-plane' not in n.metadata.labels:
                     cpu = self.cpu_convertion(n.status.allocatable['cpu']) - nodes_usage[n.metadata.name]['cpu'] - self.reserved_kublet_cpu
                     ram = self.ram_convertion(n.status.allocatable['memory']) - nodes_usage[n.metadata.name]['memory'] - self.reserved_kublet_ram
                     ready_nodes[self.set_nickname(n.metadata.name)] = {'num': 1, 'resources': {'RAM': ram, 'cpu': cpu}} #TODO add "cost"
@@ -250,7 +250,7 @@ class Scheduler():
                 for key, value in pod.metadata.labels.items():
                     labels[value][key] += [pod.metadata.name]
         for node in self.api.list_node().items:
-            if 'node-role.kubernetes.io/master' not in node.metadata.labels:
+            if 'node-role.kubernetes.io/control-plane' not in node.metadata.labels:
                 for key, value in node.metadata.labels.items():
                     labels[value][key] += [node.metadata.name]
         return regular_events, replica_sets, labels

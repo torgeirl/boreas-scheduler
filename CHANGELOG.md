@@ -4,6 +4,7 @@
 - `kubernetes`: bumped to version 26.1
 - removed `pytz`
 - moved options from a config file to environment variables
+- replaced `node-role.kubernetes.io/master` label with `node-role.kubernetes.io/control-plane` due to [deprecation in v1.24](https://kubernetes.io/blog/2022/04/07/upcoming-changes-in-kubernetes-1-24/)
 
 # v0.4.0 (2021-10-27)
 **Updated dependencies**
