@@ -20,14 +20,13 @@ Pod description and logs are also available:
 
 ### Deploy from local container registry
 Install Buildah to work with images locally (requires Ubuntu 20.10 or newer):
-  - `$ sudo apt-get install buildah`
+  - `$ sudo apt-get install buildah make`
 
-Start a local image registry:
-  - `$ registryctr=$(buildah from docker.io/library/registry:2)`
-  - `$ buildah run --net=host $registryctr /entrypoint.sh /etc/docker/registry/config.yml`
+Start a local image registry as a background process:
+  - `$ make start-registry`
 
 Then run the deployment script:
-  - `$ bash build/deploy-locally`
+  - `$ make deploy-locally`
 
 which deploys the scheduler locally in three steps:
 
@@ -41,7 +40,7 @@ which deploys the scheduler locally in three steps:
   - `$ kubectl create -f deployments/scheduler-local.yaml`
 
 ## Remove Boreas scheduler
-  - `$ bash build/remove`
+  - `$ make remove`
 
 which removes the scheduler by running the following:
   - `$ kubectl delete deployment --namespace=kube-system boreas-scheduler`
