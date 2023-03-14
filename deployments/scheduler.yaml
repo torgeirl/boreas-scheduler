@@ -42,6 +42,7 @@ spec:
       containers:
       - name: boreas-scheduler
         image: ghcr.io/torgeirl/boreas-scheduler:latest
+        imagePullPolicy: Always
         livenessProbe:
           httpGet:
             path: /health

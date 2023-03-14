@@ -42,6 +42,7 @@ spec:
       containers:
       - name: boreas-scheduler
         image: localhost:5000/boreas-scheduler:local
+        imagePullPolicy: Always
         livenessProbe:
           httpGet:
             path: /health
