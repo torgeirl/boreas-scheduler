@@ -29,8 +29,8 @@ class Scheduler():
         self.api = k8s_client.CoreV1Api()
         self.name = getenv('BOREAS_SCHEDULER_NAME', 'boreas-scheduler')
         self.namespace = getenv('BOREAS_SCHEDULER_NAMESPACE', 'default')
-        self.reserved_kublet_cpu = int(getenv('BOREAS_SCHEDULER_RESERVED_KUBLET_CPU', 100))
-        self.reserved_kublet_ram = int(getenv('BOREAS_SCHEDULER_RESERVED_KUBLET_RAM', 50))
+        self.reserved_kublet_cpu = int(getenv('BOREAS_SCHEDULER_RESERVED_KUBLET_CPU', 0)) # use `systemReserved`/`kubeReserved` in Kubelet config
+        self.reserved_kublet_ram = int(getenv('BOREAS_SCHEDULER_RESERVED_KUBLET_RAM', 0)) # use `systemReserved`/`kubeReserved` in Kubelet config
         self.default_request_cpu = int(getenv('BOREAS_SCHEDULER_DEFAULT_REQUEST_CPU')) if getenv('BOREAS_SCHEDULER_DEFAULT_REQUEST_CPU') else None
         self.default_request_ram = int(getenv('BOREAS_SCHEDULER_DEFAULT_REQUEST_RAM')) if getenv('BOREAS_SCHEDULER_DEFAULT_REQUEST_RAM') else None
         self.no_solution_found_warning = getenv('BOREAS_SCHEDULER_NO_SOLUTION_FOUND_WARNING', False)
