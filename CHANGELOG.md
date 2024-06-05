@@ -1,7 +1,7 @@
 # v0.5.0 (unreleased)
 **Updated dependencies**
 - bumped docker base image from `python:3.9-slim` to `python:3.10-slim`
-- `kubernetes`: bumped to version 30.1
+- `kubernetes`: bumped to version 29.0
 - removed `pytz`
 - moved options from a config file to environment variables
 - replaced `node-role.kubernetes.io/master` label with `node-role.kubernetes.io/control-plane` due to [deprecation in v1.24](https://kubernetes.io/blog/2022/04/07/upcoming-changes-in-kubernetes-1-24/)
