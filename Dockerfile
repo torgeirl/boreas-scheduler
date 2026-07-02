@@ -1,5 +1,5 @@
 FROM python:3.13-slim AS base
-FROM base as builder
+FROM base AS builder
 
 ENV PYTHONPATH=/install/lib/python3.13/site-packages \
     PIP_DEFAULT_TIMEOUT=100 \
@@ -17,6 +17,9 @@ RUN pip install --upgrade pip==26.1 && `# required for --uploaded-prior-to` \
 
 FROM base
 
+ENV PYTHONUNBUFFERED=1 \
+    PIP_ROOT_USER_ACTION=ignore
+
 RUN apt-get update && \
     apt-get -y upgrade && \
     rm -rf /var/lib/apt/lists/* && \
@@ -26,5 +29,4 @@ COPY --from=builder /install /usr/local
 COPY src /app
 WORKDIR /app
 
-ENV PYTHONUNBUFFERED=1
 CMD ["python", "-u", "scheduler.py"]
