@@ -1,6 +1,6 @@
 # v0.5.0 (unreleased)
 **Updated dependencies**
-- bumped docker base image from `python:3.9-slim` to `python:3.10-slim`
+- bumped docker base image from `python:3.9-slim` to `python:3.13-slim`
 - bumped the pause image used for manual verification from `k8s.gcr.io/pause:2.0` to `registry.k8s.io/pause:3.1`
 - `kubernetes`: bumped to version 30.1
 - removed `pytz`
