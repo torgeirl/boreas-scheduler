@@ -2,7 +2,7 @@
 **Updated dependencies**
 - bumped docker base image from `python:3.9-slim` to `python:3.13-slim`
 - bumped the pause image used for manual verification from `k8s.gcr.io/pause:2.0` to `registry.k8s.io/pause:3.1`
-- `kubernetes`: bumped to version 30.1
+- `kubernetes`: bumped to version 36.0
 - removed `pytz`
 - replaced `node-role.kubernetes.io/master` label with `node-role.kubernetes.io/control-plane` due to [deprecation in v1.24](https://kubernetes.io/blog/2022/04/07/upcoming-changes-in-kubernetes-1-24/)
 
