@@ -1,10 +1,14 @@
 # v0.5.0 (unreleased)
 **Updated dependencies**
 - bumped docker base image from `python:3.9-slim` to `python:3.10-slim`
+- bumped the pause image used for manual verification from `k8s.gcr.io/pause:2.0` to `registry.k8s.io/pause:3.1`
 - `kubernetes`: bumped to version 30.1
 - removed `pytz`
-- moved options from a config file to environment variables
 - replaced `node-role.kubernetes.io/master` label with `node-role.kubernetes.io/control-plane` due to [deprecation in v1.24](https://kubernetes.io/blog/2022/04/07/upcoming-changes-in-kubernetes-1-24/)
+
+**Improvements**
+- moved options from a config file to environment variables
+- made the registry run quietly in the background when deploying local builds of the scheduler itself
 
 # v0.4.0 (2021-10-27)
 **Updated dependencies**

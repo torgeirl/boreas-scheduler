@@ -19,8 +19,8 @@ Pod description and logs are also available:
   - `$ kubectl create -f deployments/scheduler.yaml`
 
 ### Deploy from local container registry
-Install Buildah to work with images locally (requires Ubuntu 20.10 or newer):
-  - `$ sudo apt-get install buildah make`
+Install Buildah and Podman to work with images locally (requires Ubuntu 26.04 LTS or newer):
+  - `$ sudo apt-get install buildah podman make`
 
 Start a local image registry as a background process:
   - `$ make start-registry`
@@ -31,13 +31,21 @@ Then run the deployment script:
 which deploys the scheduler locally in three steps:
 
 (1) Build a container image:
-  - `$ buildah bud -t boreas-scheduler:local .`
+  - `$ buildah build -t boreas-scheduler:local .`
 
 (2) Push the image to the local registry:
-  - `$ buildah push --tls-verify=false boreas-scheduler docker://localhost:5000/boreas-scheduler:local`
+  - `$ buildah push --tls-verify=false boreas-scheduler:local docker://localhost:5000/boreas-scheduler:local`
 
-(3) Deploy the sheduler to Kubernetes:
+(3) Deploy the scheduler to Kubernetes:
   - `$ kubectl create -f deployments/scheduler-local.yaml`
+
+**Note:** If the build hangs during network operations (`apt-get` or `pip install`), you may need to configure Buildah's networking for rootless containers. Create `~/.config/containers/containers.conf` with:
+```toml
+[network]
+default_rootless_network_cmd = "slirp4netns"
+dns_servers = ["8.8.8.8", "1.1.1.1"]
+```
+See the [Buildah troubleshooting guide](https://github.com/containers/buildah/blob/main/troubleshooting.md) for more details.
 
 ## Remove Boreas scheduler
   - `$ make remove`

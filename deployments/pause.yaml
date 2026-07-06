@@ -8,7 +8,7 @@ spec:
   schedulerName: boreas-scheduler
   containers:
   - name: pod-with-second-annotation-container
-    image: k8s.gcr.io/pause:2.0
+    image: registry.k8s.io/pause:3.1
     resources:
       requests:
         cpu: '0.1'
